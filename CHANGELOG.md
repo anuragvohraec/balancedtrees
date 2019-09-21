@@ -1,3 +1,2 @@
-## [0.0.1] - TODO: Add release date.
-
-* TODO: Describe initial release.
+## [0.0.1] - 21 Sep 2019
+* Intial release: Includes a collection of AVL and BPlusTree 

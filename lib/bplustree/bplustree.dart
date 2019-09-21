@@ -2,8 +2,6 @@ import "package:balancedtrees/avltree/avltree.dart";
 
 int id=0;//TODO Remove this;
 
-typedef Compare<K> = int Function(K k1, K k2);
-
 typedef ChangeNodeFunction<K>  = bool Function(BPlusNode<K> startNode, Compare<K> compare);
 
 //cell in a BPlusTree

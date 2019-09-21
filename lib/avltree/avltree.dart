@@ -1,4 +1,3 @@
-import "package:meta/meta.dart";
 import "package:balancedtrees/comparators/comparators.dart";
 
 //Why not used collections present in dart:collections ? in the SplayTreeMap provided, traversal is not possible and startKey and endkey query is not possible to get a range of values
@@ -127,7 +126,7 @@ class AVLTreeAlgos{
 
 
   //recalculates the size of tree
-  static int reCalculateSize<K>({@required AVLTreeNode<K> startNode}){
+  static int reCalculateSize<K>({AVLTreeNode<K> startNode}){
     int i =0;
     if(startNode!=null){
       i=i+reCalculateSize(startNode: startNode.left);
@@ -137,7 +136,7 @@ class AVLTreeAlgos{
     return i;
   }
   ///provides inorder traversal(: when items required in comparison sorted order
-  static inorderTraversalSync<K>({@required AVLTreeNode<K> startNode, List<K> list}){
+  static inorderTraversalSync<K>({AVLTreeNode<K> startNode, List<K> list}){
     if(startNode!=null){
       inorderTraversalSync(startNode: startNode.left,list: list);//go for least;
       list.add (startNode.key);//go for middle
@@ -145,13 +144,13 @@ class AVLTreeAlgos{
     }
   }
 
-  static List<K> preorderTraversalSync<K>({@required AVLTreeNode<K> startNode}){
+  static List<K> preorderTraversalSync<K>({AVLTreeNode<K> startNode}){
     var kl = <K>[];
     _preorderTraversalSync(startNode: startNode, list: kl);
     return kl;
   }
 
-  static _preorderTraversalSync<K>({@required AVLTreeNode<K> startNode, List<K> list}){
+  static _preorderTraversalSync<K>({AVLTreeNode<K> startNode, List<K> list}){
     if(startNode!=null){
       list.add (startNode.key);//go for middle
       _preorderTraversalSync(startNode: startNode.left,list: list);//go for least;
@@ -161,7 +160,7 @@ class AVLTreeAlgos{
 
 
   ///provides inorder traversal(: when items required in comparison sorted order
-  static Stream<AVLTreeNode<K>> inorderTraversal<K>({@required AVLTreeNode<K> startNode}) async*{
+  static Stream<AVLTreeNode<K>> inorderTraversal<K>({AVLTreeNode<K> startNode}) async*{
     if(startNode!=null){
       yield* inorderTraversal(startNode: startNode.left);//go for least
       yield startNode;//go for middle
@@ -182,7 +181,7 @@ class AVLTreeAlgos{
   }
 
   ///provides inorder traversal: used when operation from root is required (copy the tree)
-  static Stream<AVLTreeNode<K>> preorderTraversal<K>({@required AVLTreeNode<K> startNode}) async*{
+  static Stream<AVLTreeNode<K>> preorderTraversal<K>({AVLTreeNode<K> startNode}) async*{
     if(startNode!=null) {
       yield startNode; //root
       yield* preorderTraversal(startNode: startNode?.left); //left
@@ -191,7 +190,7 @@ class AVLTreeAlgos{
   }
 
   ///provides inorder traversal: used when operation from leaf is required (deletion from leaf)
-  static Stream<AVLTreeNode<K>> postorderTraversal<K>({@required AVLTreeNode<K> startNode}) async*{
+  static Stream<AVLTreeNode<K>> postorderTraversal<K>({AVLTreeNode<K> startNode}) async*{
     if(startNode!=null) {
       yield* postorderTraversal(startNode: startNode?.left);
       yield* postorderTraversal(startNode: startNode?.right);
@@ -200,7 +199,7 @@ class AVLTreeAlgos{
   }
 
   ///returns null if the tree supplied is null, else returns the minimum value in the tree
-  static AVLTreeNode<K> findMin<K>(@required AVLTree<K> tree,{bool recalculate=false}){
+  static AVLTreeNode<K> findMin<K>(AVLTree<K> tree,{bool recalculate=false}){
     if(tree==null){
       return null;
     }
@@ -217,7 +216,7 @@ class AVLTreeAlgos{
     return tree.min;
   }
 
-  static AVLTreeNode<K> _findMin<K>(@required AVLTreeNode<K> currentNode){
+  static AVLTreeNode<K> _findMin<K>(AVLTreeNode<K> currentNode){
     if(currentNode.left==null){
       return currentNode;
     }else{
@@ -225,7 +224,7 @@ class AVLTreeAlgos{
     }
   }
 
-  static AVLTreeNode<K> findMax<K>(@required AVLTree<K> tree,{bool recalculate=false}){
+  static AVLTreeNode<K> findMax<K>(AVLTree<K> tree,{bool recalculate=false}){
     if(tree==null){
       return null;
     }
@@ -242,7 +241,7 @@ class AVLTreeAlgos{
     return tree.max;
   }
 
-  static AVLTreeNode<K> _findMax<K>(@required AVLTreeNode<K> currentNode){
+  static AVLTreeNode<K> _findMax<K>(AVLTreeNode<K> currentNode){
     if(currentNode.right==null){
       return currentNode;
     }else{
@@ -253,7 +252,7 @@ class AVLTreeAlgos{
   ///finds a node equals or "just" greater than the current node,
   ///equality has to be checked once more, aftre it sends results
   ///does a linear search : O(log n)
-  static linearSearch<K>({@required K keyToBeSearched,@required AVLTree<K> tree}) async{
+  static linearSearch<K>({K keyToBeSearched,AVLTree<K> tree}) async{
     if(tree.root==null){
       return null;
     }else{
@@ -272,7 +271,7 @@ class AVLTreeAlgos{
   ///equality has to be checked once more, after it sends results.
   ///**returns right most element** if search key is bigger than biggest,
   ///**returns null** if search key is smaller than the least.
-  static AVLTreeNode<K> searchJustLesserThanOrEqual<K>({@required K searchKey,@required AVLTree<K> tree}){
+  static AVLTreeNode<K> searchJustLesserThanOrEqual<K>({K searchKey,AVLTree<K> tree}){
     return _searchJLTorE(currentNode: tree.root, searchKey: searchKey, compare: tree.compare);
   }
 
@@ -281,7 +280,7 @@ class AVLTreeAlgos{
   ///back end supporting function for search operation: searchJustLesserThanOrEqual
   ///
   /// * **jltNode** just lesser than node
-  static AVLTreeNode<K> _searchJLTorE<K>({@required AVLTreeNode<K> currentNode, @required K searchKey, @required Compare<K> compare, AVLTreeNode<K> jltNode}){
+  static AVLTreeNode<K> _searchJLTorE<K>({AVLTreeNode<K> currentNode, K searchKey, Compare<K> compare, AVLTreeNode<K> jltNode}){
     AVLTreeNode<K>  t1;
 
     if(currentNode==null||searchKey==null){
@@ -328,7 +327,7 @@ class AVLTreeAlgos{
 
   ///finds a node equals or "just" greater than the current node,
   ///equality has to be checked once more, aftre it sends results
-  static AVLTreeNode<K> searchGTE<K>({@required K searchKey,@required AVLTree<K> tree}){
+  static AVLTreeNode<K> searchGTE<K>({K searchKey,AVLTree<K> tree}){
     var r = _recursive_search(currentNode: tree.root, searchKey: searchKey, compare: tree.compare);
     return r;
   }
@@ -352,7 +351,7 @@ class AVLTreeAlgos{
   ///back end supporting function for search operation
   ///
   /// * **jgtNode** just greater than node
-  static AVLTreeNode<K> _recursive_search<K>({@required AVLTreeNode<K> currentNode, @required K searchKey, @required Compare<K> compare, AVLTreeNode<K> jgtNode}){
+  static AVLTreeNode<K> _recursive_search<K>({AVLTreeNode<K> currentNode, K searchKey, Compare<K> compare, AVLTreeNode<K> jgtNode}){
     AVLTreeNode<K>  t1;
 
     var currentNode_Is______Searchkey = _compareNodeKeyWithSearchKey(currentNode?.key, searchKey, compare);
@@ -416,14 +415,14 @@ class AVLTreeAlgos{
   }
 
   ///inserts a new node, returns the refernce to the new Node inserted
-  static AVLTreeNode<K> insert<K>({@required K newKey,@required AVLTree<K> tree}){
+  static AVLTreeNode<K> insert<K>({K newKey,AVLTree<K> tree}){
     AVLTreeNode<K> t1=insertWithoutBalance(newKey: newKey, tree: tree);
     checkAndBalanceTree(t1, tree);
     return t1;
   }
 
   ///inserts a new node, returns the refernce to the new Node inserted, avoid AVL balance 
-  static AVLTreeNode<K> insertWithoutBalance<K>({@required K newKey,@required AVLTree<K> tree}){
+  static AVLTreeNode<K> insertWithoutBalance<K>({K newKey,AVLTree<K> tree}){
     AVLTreeNode<K> t1;
     if(tree.root==null){//filling the root
       t1 =AVLTreeNode(key: newKey);
@@ -438,7 +437,7 @@ class AVLTreeAlgos{
     return t1;
   }
 
-  static _setMinAndMaxAfterInsertion<K>(@required AVLTree<K> tree, AVLTreeNode<K> newValueInserted){
+  static _setMinAndMaxAfterInsertion<K>(AVLTree<K> tree, AVLTreeNode<K> newValueInserted){
     Compare<K> compare = tree.compare;
     if(compare(newValueInserted.key,tree.min.key)<0){
       tree.min = newValueInserted;
@@ -450,7 +449,7 @@ class AVLTreeAlgos{
   }
 
   ///back end supporting function for insertion, returns new node
-  static AVLTreeNode<K> _insertNode<K>({@required AVLTreeNode<K> currentNode,@required K newKey, @required Compare<K> compare}){
+  static AVLTreeNode<K> _insertNode<K>({AVLTreeNode<K> currentNode,K newKey, Compare<K> compare}){
     AVLTreeNode<K> r;
     if(compare(newKey,currentNode.key)<0){//=> its lesser than current node.
       if(currentNode.left==null){
@@ -475,7 +474,7 @@ class AVLTreeAlgos{
   }
 
   ///deletes the node from the tree if its present
-  static AVLTreeNode<K> delete <K>({@required K keyToBeDeleted, @required AVLTree<K> tree}){
+  static AVLTreeNode<K> delete <K>({K keyToBeDeleted, AVLTree<K> tree}){
     var found = searchGTE(searchKey: keyToBeDeleted, tree: tree);
     var t1= found;
 
@@ -501,7 +500,7 @@ class AVLTreeAlgos{
     return null;
   }
 
-  static _setMinAndMaxAfterDeletion<K>(@required AVLTree<K> tree, AVLTreeNode<K> keyDeleted){
+  static _setMinAndMaxAfterDeletion<K>(AVLTree<K> tree, AVLTreeNode<K> keyDeleted){
     Compare<K> compare = tree.compare;
     if(compare(keyDeleted.key, tree.min.key)==0){
       if(keyDeleted.right!=null){
@@ -533,7 +532,7 @@ class AVLTreeAlgos{
   }
 
   ///back end supporting function for deletion
-  static AVLTreeNode<K> _deleteNode<K>({@required AVLTreeNode<K> nodeToRemove, @required Compare<K> compare}){
+  static AVLTreeNode<K> _deleteNode<K>({AVLTreeNode<K> nodeToRemove, Compare<K> compare}){
 
     var parent = nodeToRemove.parent;
 
