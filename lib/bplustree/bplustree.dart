@@ -277,6 +277,27 @@ class BPlusTreeAlgos{
     return i;
   }
 
+  static Stream<BPlusCell<K>> searchForRange<K>(BPlusTree<K> bptree, K startKey, K endKey) async*{
+    BPlusNode<K>  startNode = searchForLeafNode(searchKey: startKey, bptree: bptree);
+    BPlusNode<K> endNode = searchForLeafNode(searchKey: endKey, bptree: bptree);
+    BPlusNode<K> currentNode = startNode;
+    if(startNode!=endNode){
+      while(currentNode!=endNode){
+        var st1 = AVLTreeAlgos.inorderRangeTraversal(tree: currentNode.node.internalCellTree, startKey: BPlusCell(key: startKey), endKey: BPlusCell(key: endKey));
+        await for (var n1 in st1){
+          yield n1.key;
+        }
+        currentNode = currentNode.node.rightSibling;
+      }
+    }
+    if(currentNode==endNode){
+      var st1 = AVLTreeAlgos.inorderRangeTraversal(tree: currentNode.node.internalCellTree, startKey: BPlusCell(key: startKey), endKey: BPlusCell(key: endKey));
+      await for (var n1 in st1){
+        yield n1.key;
+      }
+    }
+  }
+
   ///searches for key and returns it cell from leaf node.
   ///if the searchKey is smaller than smallest than it returns null
   ///if its greater than largest than it returns largest value

@@ -171,10 +171,10 @@ class AVLTreeAlgos{
   ///provides inorder traversal(: when items required in comparison sorted order
   static Stream<AVLTreeNode<K>> inorderRangeTraversal<K>({K startKey, K endKey, AVLTree<K> tree}) async*{
     await for(var i in inorderTraversal(startNode: tree.root)){
-      if(tree.compare(i.key,startKey)>0){
+      if(tree.compare(i.key,startKey)>=0){
         yield i;
       }
-      if(tree.compare(i.key,endKey)>=0){
+      if(endKey!=null && tree.compare(i.key,endKey)>=0){
         break;
       }
     }
