@@ -22,6 +22,33 @@ main() {
     await verify_it_against_file("$prefix/range1_data.csv", str);
   });
 
+  test("CASE2: Test searchForRange, start key null and end key not null",() async{
+    var bptree = BPlusTree<String>(compare: genUnitSortHelper, capacityOfNode: 4);
+    do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
+    expect(bptree.size, 300);
+    expect(getLeafLevelSize(bptree: bptree), 300);
+    var str = BPlusTreeAlgos.searchForRange(bptree, null, "n242");
+    await verify_it_against_file("$prefix/range2_data.csv", str);
+  });
+
+  test("CASE3: Test searchForRange, end key null and start key not null",() async{
+    var bptree = BPlusTree<String>(compare: genUnitSortHelper, capacityOfNode: 4);
+    do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
+    expect(bptree.size, 300);
+    expect(getLeafLevelSize(bptree: bptree), 300);
+    var str = BPlusTreeAlgos.searchForRange(bptree, "n129", null);
+    await verify_it_against_file("$prefix/range3_data.csv", str);
+  });
+
+  test("CASE4: Test searchForRange, start and end key null",() async{
+    var bptree = BPlusTree<String>(compare: genUnitSortHelper, capacityOfNode: 4);
+    do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
+    expect(bptree.size, 300);
+    expect(getLeafLevelSize(bptree: bptree), 300);
+    var str = BPlusTreeAlgos.searchForRange(bptree, null, null);
+    await verify_it_against_file("$prefix/sorted_data.csv", str);
+  });
+
 }
 
 verify_it_against_file(String relFilePath,Stream<BPlusCell<String>> streamOfCells) async{

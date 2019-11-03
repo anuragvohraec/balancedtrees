@@ -174,6 +174,14 @@ class BPlusTree<K>{
   ///This can be captured during first element creation and can be used for faster leaf node retreival
   BPlusNode<K> leftMostLeafNode;
 
+  BPlusNode<K> get rightMostLeafNode{
+    var current = root;
+    while(!current.node.isLeaf){
+      current =  current.node.internalCellTree.max.key.rightChildNode;
+    }
+    return current;
+  }
+
   ///root element of this B Plus tree
   BPlusNode<K> root;
 
@@ -278,12 +286,14 @@ class BPlusTreeAlgos{
   }
 
   static Stream<BPlusCell<K>> searchForRange<K>(BPlusTree<K> bptree, K startKey, K endKey) async*{
-    BPlusNode<K>  startNode = searchForLeafNode(searchKey: startKey, bptree: bptree);
-    BPlusNode<K> endNode = searchForLeafNode(searchKey: endKey, bptree: bptree);
+    BPlusNode<K>  startNode = startKey==null? bptree.leftMostLeafNode :searchForLeafNode(searchKey: startKey, bptree: bptree);
+    BPlusNode<K> endNode = endKey==null? bptree.rightMostLeafNode: searchForLeafNode(searchKey: endKey, bptree: bptree);
     BPlusNode<K> currentNode = startNode;
     if(startNode!=endNode){
       while(currentNode!=endNode){
-        var st1 = AVLTreeAlgos.inorderRangeTraversal(tree: currentNode.node.internalCellTree, startKey: BPlusCell(key: startKey), endKey: BPlusCell(key: endKey));
+        var sk = startKey==null?null:BPlusCell(key: startKey);
+        var ek = endKey==null? null: BPlusCell(key: endKey);
+        var st1 = AVLTreeAlgos.inorderRangeTraversal(tree: currentNode.node.internalCellTree, startKey: sk, endKey: ek);
         await for (var n1 in st1){
           yield n1.key;
         }
@@ -291,7 +301,9 @@ class BPlusTreeAlgos{
       }
     }
     if(currentNode==endNode){
-      var st1 = AVLTreeAlgos.inorderRangeTraversal(tree: currentNode.node.internalCellTree, startKey: BPlusCell(key: startKey), endKey: BPlusCell(key: endKey));
+      var sk = startKey==null?null:BPlusCell(key: startKey);
+      var ek = endKey==null? null: BPlusCell(key: endKey);
+      var st1 = AVLTreeAlgos.inorderRangeTraversal(tree: currentNode.node.internalCellTree, startKey: sk, endKey: ek);
       await for (var n1 in st1){
         yield n1.key;
       }
