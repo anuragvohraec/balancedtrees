@@ -285,9 +285,9 @@ class BPlusTreeAlgos{
     return i;
   }
 
-  static Stream<BPlusCell<K>> searchForRange<K>(BPlusTree<K> bptree, K startKey, K endKey) async*{
-    BPlusNode<K>  startNode = startKey==null? bptree.leftMostLeafNode :searchForLeafNode(searchKey: startKey, bptree: bptree);
-    BPlusNode<K> endNode = endKey==null? bptree.rightMostLeafNode: searchForLeafNode(searchKey: endKey, bptree: bptree);
+  static Stream<BPlusCell<K>> searchForRange<K>(BPlusTree<K> bptree, K startKey, K endKey, {Compare<BPlusCell<K>> customCompare}) async*{
+    BPlusNode<K>  startNode = startKey==null? bptree.leftMostLeafNode :searchForLeafNode(searchKey: startKey, bptree: bptree, customCompare: customCompare);
+    BPlusNode<K> endNode = endKey==null? bptree.rightMostLeafNode: searchForLeafNode(searchKey: endKey, bptree: bptree, customCompare:  customCompare);
     BPlusNode<K> currentNode = startNode;
     if(startNode!=endNode){
       while(currentNode!=endNode){
@@ -313,9 +313,9 @@ class BPlusTreeAlgos{
   ///Searches for a range of values,supports pagination.
   ///
   /// [offset will decide from where to start the search and [limit] will limit the result to this many items only
-  static Stream<BPlusCell<K>> searchForRangeWithPagination<K>(BPlusTree<K> bptree, K startKey, K endKey, [int offset=0, int limit=-1]) async*{
-    BPlusNode<K>  startNode = startKey==null? bptree.leftMostLeafNode :searchForLeafNode(searchKey: startKey, bptree: bptree);
-    BPlusNode<K> endNode = endKey==null? bptree.rightMostLeafNode: searchForLeafNode(searchKey: endKey, bptree: bptree);
+  static Stream<BPlusCell<K>> searchForRangeWithPagination<K>(BPlusTree<K> bptree, K startKey, K endKey, {int offset=0, int limit=-1, Compare<BPlusCell<K>> customCompare}) async*{
+    BPlusNode<K>  startNode = startKey==null? bptree.leftMostLeafNode :searchForLeafNode(searchKey: startKey, bptree: bptree, customCompare: customCompare);
+    BPlusNode<K> endNode = endKey==null? bptree.rightMostLeafNode: searchForLeafNode(searchKey: endKey, bptree: bptree, customCompare: customCompare);
     BPlusNode<K> currentNode = startNode;
 
     int skip=0;
@@ -362,12 +362,12 @@ class BPlusTreeAlgos{
   ///if the searchKey is smaller than smallest than it returns null
   ///if its greater than largest than it returns largest value
   ///else it return just lesser than or equals to value
-  static BPlusCell<K> searchForKey<K> ({BPlusTree<K> bptree, K searchKey}){
+  static BPlusCell<K> searchForKey<K> ({BPlusTree<K> bptree, K searchKey,Compare<BPlusCell<K>>  customCompare}){
     BPlusNode<K> bpNode = bptree.root;
     var bpsearchKey =BPlusCell<K>(key: searchKey);
     BPlusCell<K> foundCell;
     while(bpNode!=null){
-      foundCell = AVLTreeAlgos.searchJustLesserThanOrEqual(searchKey: bpsearchKey, tree: bpNode.node.internalCellTree)?.key;
+      foundCell = AVLTreeAlgos.searchJustLesserThanOrEqual(searchKey: bpsearchKey, tree: bpNode.node.internalCellTree, customCompare: customCompare)?.key;
       if(bpNode.node.isLeaf){
         break;
       }
@@ -383,12 +383,12 @@ class BPlusTreeAlgos{
   }
 
   ///searches for the leaf node where the value is being stored: uses searchJustLesserThanOrEqual
-  static BPlusNode<K> searchForLeafNode<K> ({BPlusTree<K> bptree, K searchKey}){
-   BPlusNode<K> bpNode= bptree.root;
+  static BPlusNode<K> searchForLeafNode<K> ({BPlusTree<K> bptree, K searchKey,Compare<BPlusCell<K>> customCompare}){
+   BPlusNode<K> bpNode = bptree.root;
 
-    var bpsearchKey =BPlusCell<K>(key: searchKey);
+    var bpsearchKey = BPlusCell<K>(key: searchKey);
     while(!bpNode.node.isLeaf){
-      var foundCell = AVLTreeAlgos.searchJustLesserThanOrEqual(searchKey: bpsearchKey, tree: bpNode.node.internalCellTree);
+      var foundCell = AVLTreeAlgos.searchJustLesserThanOrEqual(searchKey: bpsearchKey, tree: bpNode.node.internalCellTree, customCompare: customCompare);
       if(foundCell==null){
         bpNode=bpNode.node.leftMostChild;
       }else{
@@ -414,6 +414,9 @@ class BPlusTreeAlgos{
 
     bptree.size= bptree.size+1;
 
+
+    //readjustments are required after split too to make
+    //well filled tree. this queue helps in that
     var queue = <BPlusNode<K>>[];
 
     int half_capacity = bptree.capacityOfNode~/2;
@@ -447,6 +450,8 @@ class BPlusTreeAlgos{
       bptree.root = splitted.parentNode;
     }
 
+
+    //here we will go through the queue and readjust the tree to make it maximum filled
     while(queue.isNotEmpty){
       var t1=queue.removeAt(0);
       if(t1.node.internalCellTree==null){

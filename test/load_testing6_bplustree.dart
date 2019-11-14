@@ -54,7 +54,7 @@ main() {
     do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
     expect(bptree.size, 300);
     expect(getLeafLevelSize(bptree: bptree), 300);
-    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", 0, -1);
+    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256");
     await verify_it_against_file("$prefix/range1_data.csv", str);
   });
 
@@ -63,16 +63,16 @@ main() {
     do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
     expect(bptree.size, 300);
     expect(getLeafLevelSize(bptree: bptree), 300);
-    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", 0, 13);
+    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", limit: 13);
     await verify_it_against_file("$prefix/range1_of0_lm13d_ata.csv", str);
   });
 
-  test("CASE7: Test searchForRangeWithPagination: default offset and limit fixed",() async{
+  test("CASE7: Test searchForRangeWithPagination: fixed offset and limit fixed",() async{
     var bptree = BPlusTree<String>(compare: genUnitSortHelper, capacityOfNode: 4);
     do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
     expect(bptree.size, 300);
     expect(getLeafLevelSize(bptree: bptree), 300);
-    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", 23, 8);
+    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", offset:23, limit:8);
     await verify_it_against_file("$prefix/range1_of23_lm8data.csv", str);
   });
 
@@ -81,7 +81,7 @@ main() {
     do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
     expect(bptree.size, 300);
     expect(getLeafLevelSize(bptree: bptree), 300);
-    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", 0, 10000);
+    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", offset:0, limit:10000);
     await verify_it_against_file("$prefix/range1_data.csv", str);
   });
 }

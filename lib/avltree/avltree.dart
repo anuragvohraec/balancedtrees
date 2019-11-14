@@ -271,8 +271,8 @@ class AVLTreeAlgos{
   ///equality has to be checked once more, after it sends results.
   ///**returns right most element** if search key is bigger than biggest,
   ///**returns null** if search key is smaller than the least.
-  static AVLTreeNode<K> searchJustLesserThanOrEqual<K>({K searchKey,AVLTree<K> tree}){
-    return _searchJLTorE(currentNode: tree.root, searchKey: searchKey, compare: tree.compare);
+  static AVLTreeNode<K> searchJustLesserThanOrEqual<K>({K searchKey,AVLTree<K> tree, Compare<K> customCompare}){
+    return _searchJLTorE(currentNode: tree.root, searchKey: searchKey, compare: customCompare??tree.compare);
   }
 
 
@@ -810,7 +810,7 @@ class AVLTreeAlgos{
       return Is.ROOT;
     }
     var r = compare(node.parent.key,node.key);
-    if(r>0){
+    if(r>=0){
       return Is.LEFT_CHILD;
     }else{
       return Is.RIGHT_CHILD;
