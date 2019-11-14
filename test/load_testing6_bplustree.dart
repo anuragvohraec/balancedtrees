@@ -49,6 +49,41 @@ main() {
     await verify_it_against_file("$prefix/sorted_data.csv", str);
   });
 
+  test("CASE5: Test searchForRangeWithPagination: default offset abd limit",() async{
+    var bptree = BPlusTree<String>(compare: genUnitSortHelper, capacityOfNode: 4);
+    do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
+    expect(bptree.size, 300);
+    expect(getLeafLevelSize(bptree: bptree), 300);
+    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", 0, -1);
+    await verify_it_against_file("$prefix/range1_data.csv", str);
+  });
+
+  test("CASE6: Test searchForRangeWithPagination: default offset and limit fixed",() async{
+    var bptree = BPlusTree<String>(compare: genUnitSortHelper, capacityOfNode: 4);
+    do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
+    expect(bptree.size, 300);
+    expect(getLeafLevelSize(bptree: bptree), 300);
+    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", 0, 13);
+    await verify_it_against_file("$prefix/range1_of0_lm13d_ata.csv", str);
+  });
+
+  test("CASE7: Test searchForRangeWithPagination: default offset and limit fixed",() async{
+    var bptree = BPlusTree<String>(compare: genUnitSortHelper, capacityOfNode: 4);
+    do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
+    expect(bptree.size, 300);
+    expect(getLeafLevelSize(bptree: bptree), 300);
+    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", 23, 8);
+    await verify_it_against_file("$prefix/range1_of23_lm8data.csv", str);
+  });
+
+  test("CASE8: Test searchForRangeWithPagination: default offset and too big limit",() async{
+    var bptree = BPlusTree<String>(compare: genUnitSortHelper, capacityOfNode: 4);
+    do_operation(bptree, '$prefix/rand_arranged_data_for_insertion.csv', Operation.INSERTION);
+    expect(bptree.size, 300);
+    expect(getLeafLevelSize(bptree: bptree), 300);
+    var str = BPlusTreeAlgos.searchForRangeWithPagination(bptree, "n117", "n256", 0, 10000);
+    await verify_it_against_file("$prefix/range1_data.csv", str);
+  });
 }
 
 verify_it_against_file(String relFilePath,Stream<BPlusCell<String>> streamOfCells) async{

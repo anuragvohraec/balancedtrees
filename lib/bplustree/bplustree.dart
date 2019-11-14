@@ -310,6 +310,54 @@ class BPlusTreeAlgos{
     }
   }
 
+  ///Searches for a range of values,supports pagination.
+  ///
+  /// [offset will decide from where to start the search and [limit] will limit the result to this many items only
+  static Stream<BPlusCell<K>> searchForRangeWithPagination<K>(BPlusTree<K> bptree, K startKey, K endKey, [int offset=0, int limit=-1]) async*{
+    BPlusNode<K>  startNode = startKey==null? bptree.leftMostLeafNode :searchForLeafNode(searchKey: startKey, bptree: bptree);
+    BPlusNode<K> endNode = endKey==null? bptree.rightMostLeafNode: searchForLeafNode(searchKey: endKey, bptree: bptree);
+    BPlusNode<K> currentNode = startNode;
+
+    int skip=0;
+    int count=0;
+
+    if(startNode!=endNode){
+      while(currentNode!=endNode){
+        var sk = startKey==null?null:BPlusCell(key: startKey);
+        var ek = endKey==null? null: BPlusCell(key: endKey);
+        var st1 = AVLTreeAlgos.inorderRangeTraversal(tree: currentNode.node.internalCellTree, startKey: sk, endKey: ek);
+        await for (var n1 in st1){
+          if(skip>=offset){
+            if(count==limit){
+              break;
+            }
+            count++;
+            yield n1.key;
+          }else{
+            skip++;
+          }
+        }
+        currentNode = currentNode.node.rightSibling;
+      }
+    }
+    if(currentNode==endNode){
+      var sk = startKey==null?null:BPlusCell(key: startKey);
+      var ek = endKey==null? null: BPlusCell(key: endKey);
+      var st1 = AVLTreeAlgos.inorderRangeTraversal(tree: currentNode.node.internalCellTree, startKey: sk, endKey: ek);
+      await for (var n1 in st1){
+        if(skip>=offset) {
+          if (count == limit) {
+            break;
+          }
+          count++;
+          yield n1.key;
+        }else{
+          skip++;
+        }
+      }
+    }
+  }
+
   ///searches for key and returns it cell from leaf node.
   ///if the searchKey is smaller than smallest than it returns null
   ///if its greater than largest than it returns largest value
