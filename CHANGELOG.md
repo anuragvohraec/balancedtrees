@@ -1,3 +1,7 @@
+## [0.0.4] - 19 Nov 2019
+
+- Bug in Bplustree insert algo. It was not returning the inserted cell ref!
+
 ## [0.0.3] - 14 Nov 2019
 
 - introduction of offset and limit control variable in range search
