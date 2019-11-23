@@ -499,6 +499,8 @@ class BPlusTreeAlgos{
         }
 
         _readjustAsPerBPlusTreeNorms(currentNode, bptree, keyToBeDeleted);
+
+        return removed_key;
     }
   }
 

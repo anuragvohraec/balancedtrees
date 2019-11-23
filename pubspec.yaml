@@ -1,6 +1,6 @@
 name: balancedtrees
 description: A collections of AVL and BPlus tree
-version: 0.0.4
+version: 0.0.5
 author: Anurag Vohra<anuragvohraec@gmail.com>
 homepage: https://github.com/anuragvohraec/balancedtrees.git
 

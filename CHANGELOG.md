@@ -1,3 +1,7 @@
+## [0.0.5] - 23 Nov 2019
+
+- Bug in Bplustree deleted algo. It was not returning the deleted cell ref!
+
 ## [0.0.4] - 19 Nov 2019
 
 - Bug in Bplustree insert algo. It was not returning the inserted cell ref!
