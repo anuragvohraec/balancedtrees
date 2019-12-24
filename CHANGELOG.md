@@ -1,3 +1,7 @@
+## [0.0.7] - 24 Dec 2019
+
+- Extended **replaceDuplicate** functionality to BPlusTree as well.
+
 ## [0.0.6] - 24 Dec 2019
 
 - A new flag **replaceDuplicate** is added to insert in AVL tree, which allows to replace an existing value when inserting. 
