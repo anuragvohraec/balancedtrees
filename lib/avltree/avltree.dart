@@ -1,4 +1,5 @@
 import "package:balancedtrees/comparators/comparators.dart";
+import 'package:balancedtrees/util/util.dart';
 
 //Why not used collections present in dart:collections ? in the SplayTreeMap provided, traversal is not possible and startKey and endkey query is not possible to get a range of values
 typedef Compare<K> = int Function(K k1, K k2);
@@ -415,14 +416,14 @@ class AVLTreeAlgos{
   }
 
   ///inserts a new node, returns the refernce to the new Node inserted
-  static AVLTreeNode<K> insert<K>({K newKey,AVLTree<K> tree}){
+  static AVLTreeNode<K> insert<K>({K newKey,AVLTree<K> tree, bool replaceDuplicate=false}){
     AVLTreeNode<K> t1=insertWithoutBalance(newKey: newKey, tree: tree);
     checkAndBalanceTree(t1, tree);
     return t1;
   }
 
   ///inserts a new node, returns the refernce to the new Node inserted, avoid AVL balance 
-  static AVLTreeNode<K> insertWithoutBalance<K>({K newKey,AVLTree<K> tree}){
+  static AVLTreeNode<K> insertWithoutBalance<K>({K newKey,AVLTree<K> tree, bool replaceDuplicate=false}){
     AVLTreeNode<K> t1;
     if(tree.root==null){//filling the root
       t1 =AVLTreeNode(key: newKey);
@@ -430,7 +431,7 @@ class AVLTreeAlgos{
       tree.max = t1;
       tree.min = t1;
     }else{
-      t1=_insertNode(currentNode: tree.root, newKey: newKey, compare: tree.compare);
+      t1=replaceDuplicate?_insertNodeReplaceDuplicates(currentNode: tree.root, newKey: newKey, compare: tree.compare) :_insertNode(currentNode: tree.root, newKey: newKey, compare: tree.compare);
       _setMinAndMaxAfterInsertion(tree, t1);
     }
     tree.size++;
@@ -472,6 +473,37 @@ class AVLTreeAlgos{
     }
     return r;
   }
+
+  ///back end supporting function for insertion, returns new node
+  static AVLTreeNode<K> _insertNodeReplaceDuplicates<K>({AVLTreeNode<K> currentNode,K newKey, Compare<K> compare}){
+    AVLTreeNode<K> r;
+    int compareResult = compare(newKey,currentNode.key);
+    if(compareResult<0){//=> its lesser than current node.
+      if(currentNode.left==null){
+        var newNode = AVLTreeNode(key: newKey);
+        currentNode.left=newNode; //add the node
+        newNode.parent=currentNode; //set its parent
+        r= newNode;
+      }else{
+        r= _insertNodeReplaceDuplicates(currentNode: currentNode.left,newKey: newKey, compare: compare);
+      }
+    }else if(compareResult>0){
+      if(currentNode.right==null){
+        var newNode = AVLTreeNode(key: newKey);
+        currentNode.right=newNode; //add the node
+        newNode.parent=currentNode; //set its parent
+        r= newNode;
+      }else{
+        r= _insertNodeReplaceDuplicates(currentNode: currentNode.right,newKey: newKey, compare: compare);
+      }
+    }else{
+      currentNode.key = newKey;
+      r = currentNode;
+    }
+    return r;
+  }
+
+
 
   ///deletes the node from the tree if its present
   static AVLTreeNode<K> delete <K>({K keyToBeDeleted, AVLTree<K> tree}){

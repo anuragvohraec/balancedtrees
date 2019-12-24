@@ -1,3 +1,7 @@
+## [0.0.6] - 24 Dec 2019
+
+- A new flag **replaceDuplicate** is added to insert in AVL tree, which allows to replace an existing value when inserting. 
+
 ## [0.0.5] - 23 Nov 2019
 
 - Bug in Bplustree deleted algo. It was not returning the deleted cell ref!
