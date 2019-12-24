@@ -249,8 +249,8 @@ class BPlusNodeAlgos{
 
   ///Ads a new cell in the internal AVL tree of the supplied node.
   ///BPlusNode consturctor has the logic to initialize the internal AVL Tree
-  static BPlusCell<K> add<K>({K newKey, BPlusNode<K> node, Compare<K> compare}){
-    AVLTreeNode<BPlusCell<K>> t1 = AVLTreeAlgos.insert<BPlusCell<K>>(newKey: BPlusCell<K>(key: newKey), tree: node.node.internalCellTree);
+  static BPlusCell<K> add<K>({K newKey, BPlusNode<K> node, Compare<K> compare, bool replaceDuplicate=false}){
+    AVLTreeNode<BPlusCell<K>> t1 = AVLTreeAlgos.insert<BPlusCell<K>>(newKey: BPlusCell<K>(key: newKey), tree: node.node.internalCellTree, replaceDuplicate: replaceDuplicate);
     t1.key.homeNode = node; //setting homenode of the new cell created
     return t1.key;
   }
@@ -404,13 +404,13 @@ class BPlusTreeAlgos{
   ///
   /// <a href="https://imgbb.com/"><img src="https://i.ibb.co/djnTKD8/image.png" alt="image" border="0"></a>
   ///
-  static BPlusCell<K> insert<K,V>({BPlusTree<K> bptree,K keyToBeInserted, V valueToBeInserted}){
+  static BPlusCell<K> insert<K,V>({BPlusTree<K> bptree,K keyToBeInserted, V valueToBeInserted, bool replaceDuplicate=false}){
 
     BPlusNode<K> currentNode = searchForLeafNode<K>(bptree: bptree, searchKey: keyToBeInserted);
     Splited<K> splitted;
 
     //insert for the first time
-    var newCellCreatedInLeaf = BPlusNodeAlgos.add<K>(node: currentNode, compare: bptree.compare, newKey: keyToBeInserted);
+    var newCellCreatedInLeaf = BPlusNodeAlgos.add<K>(node: currentNode, compare: bptree.compare, newKey: keyToBeInserted, replaceDuplicate: replaceDuplicate);
     newCellCreatedInLeaf.setValue(valueToBeInserted);
 
     bptree.size= bptree.size+1;
