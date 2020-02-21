@@ -376,7 +376,7 @@ class BPlusTreeAlgos{
       while(divergenceNotFound){
         //going through all cells of a node
         var f = AVLTreeAlgos.searchGTE(tree: foundCell.homeNode.node.internalCellTree, searchKey: foundCell);
-        await for(var cell in AVLTreeAlgos.inorderTraversal(startNode: f)){
+        await for(var cell in AVLTreeAlgos.inorderRangeTraversal(startKey: f.key, tree: f.key.homeNode.node.internalCellTree)){
           if(customCompare(searchKey, cell.key.key)==0){
             if(skip>=offset) {
               if (count == limit) {
