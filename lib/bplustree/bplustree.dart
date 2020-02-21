@@ -368,14 +368,15 @@ class BPlusTreeAlgos{
     int count=0;
 
     K nextSearchKey = searchKey;
-    BPlusCell<K> foundCell = searchForKey(bptree: bptree, searchKey: nextSearchKey, customCompare: (BPlusCell<K> k1, BPlusCell<K> k2){
+    BPlusCell<K> foundCell = searchForKeyGTE(bptree: bptree, searchKey: nextSearchKey, customCompare: (BPlusCell<K> k1, BPlusCell<K> k2){
       return customCompare(k1.key, k2.key);
     });
     if(foundCell!=null){
       bool divergenceNotFound = true;
       while(divergenceNotFound){
         //going through all cells of a node
-        await for(var cell in AVLTreeAlgos.inorderTraversal(startNode: AVLTreeNode(key: foundCell))){
+        var f = AVLTreeAlgos.searchGTE(tree: foundCell.homeNode.node.internalCellTree, searchKey: foundCell);
+        await for(var cell in AVLTreeAlgos.inorderTraversal(startNode: f)){
           if(customCompare(searchKey, cell.key.key)==0){
             if(skip>=offset) {
               if (count == limit) {
@@ -400,6 +401,30 @@ class BPlusTreeAlgos{
         }
       }
     }
+  }
+
+  ///searches for key and returns it cell from leaf node.
+  ///if the searchKey is smaller than smallest than it returns null
+  ///if its greater than largest than it returns largest value
+  ///else it return just lesser than or equals to value
+  static BPlusCell<K> searchForKeyGTE<K> ({BPlusTree<K> bptree, K searchKey,Compare<BPlusCell<K>>  customCompare}){
+    BPlusNode<K> bpNode = bptree.root;
+    var bpsearchKey =BPlusCell<K>(key: searchKey);
+    BPlusCell<K> foundCell;
+    while(bpNode!=null){
+      foundCell = AVLTreeAlgos.searchGTE(searchKey: bpsearchKey, tree: bpNode.node.internalCellTree)?.key;
+      if(bpNode.node.isLeaf){
+        break;
+      }
+      if(foundCell==null){
+        bpNode=bpNode.node.leftMostChild;
+      }else{
+        bpNode=foundCell.rightChildNode;
+      }
+    }
+
+    //bpnode is guaranteed leaf
+    return foundCell;
   }
 
   ///searches for key and returns it cell from leaf node.
