@@ -273,7 +273,8 @@ class AVLTreeAlgos{
   ///**returns right most element** if search key is bigger than biggest,
   ///**returns null** if search key is smaller than the least.
   static AVLTreeNode<K> searchJustLesserThanOrEqual<K>({K searchKey,AVLTree<K> tree, Compare<K> customCompare}){
-    return _searchJLTorE(currentNode: tree.root, searchKey: searchKey, compare: customCompare??tree.compare);
+    Compare<K> compare = customCompare??tree.compare;
+    return _searchJLTorE(currentNode: tree.root, searchKey: searchKey, compare: compare);
   }
 
 

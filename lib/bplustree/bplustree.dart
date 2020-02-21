@@ -359,6 +359,49 @@ class BPlusTreeAlgos{
     }
   }
 
+
+  ///
+  /// It will find the start node and then go for each right sibling cell until the custom comparator returns 0
+  static Stream<K> searchAllKeysEqualBasedOnCustomComparator <K>(BPlusTree<K> bptree, K searchKey,Compare<K>  customCompare, {int offset=0, int limit=-1}) async*{
+
+    int skip=0;
+    int count=0;
+
+    K nextSearchKey = searchKey;
+    BPlusCell<K> foundCell = searchForKey(bptree: bptree, searchKey: nextSearchKey, customCompare: (BPlusCell<K> k1, BPlusCell<K> k2){
+      return customCompare(k1.key, k2.key);
+    });
+    if(foundCell!=null){
+      bool divergenceNotFound = true;
+      while(divergenceNotFound){
+        //going through all cells of a node
+        await for(var cell in AVLTreeAlgos.inorderTraversal(startNode: AVLTreeNode(key: foundCell))){
+          if(customCompare(searchKey, cell.key.key)==0){
+            if(skip>=offset) {
+              if (count == limit) {
+                break;
+              }
+              count++;
+              yield cell.key.key;
+            }else{
+              skip++;
+            }
+          }else{
+            divergenceNotFound=false;
+            break;
+          }
+        }
+
+        //if the node has right sibling and no divergence found then, lets use right sibling tree for this
+        if(divergenceNotFound && foundCell.homeNode.node.rightSibling!=null){
+          foundCell = foundCell.homeNode.node.rightSibling.node.internalCellTree.root.key;
+        }else{
+          break;
+        }
+      }
+    }
+  }
+
   ///searches for key and returns it cell from leaf node.
   ///if the searchKey is smaller than smallest than it returns null
   ///if its greater than largest than it returns largest value
