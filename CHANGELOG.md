@@ -1,3 +1,7 @@
+## [0.0.8] - 21 Feb 2020
+
+- Added search BPLus tree by a custom comparator functionality.
+
 ## [0.0.7] - 24 Dec 2019
 
 - Extended **replaceDuplicate** functionality to BPlusTree as well.
