@@ -360,6 +360,49 @@ class BPlusTreeAlgos{
   }
 
 
+  //Searches for all keys which are equals to the key in the given keyList
+  static Stream<K> searchAllKeysInTheKeyList <K>(BPlusTree<K> bptree, List<K>keyList, {Compare<K>  customCompare,int offset=0, int limit=-1}) async*{
+    if(offset<keyList.length){
+      int kl = keyList.length;
+      int effectiveLimit = limit==-1?kl:(limit>kl?kl: limit);
+      List<K> effectiveList = keyList.sublist(offset, effectiveLimit);
+
+      for(K searchKey in effectiveList){
+        BPlusCell<K> foundCell = searchForKeyGTE(bptree: bptree, searchKey: searchKey, customCompare: (BPlusCell<K> k1, BPlusCell<K> k2){
+          return customCompare(k1.key, k2.key);
+        });
+        if(customCompare!=null){
+          if(customCompare(foundCell.key, searchKey)==0){
+            yield foundCell.key;
+          }
+        }else{
+          if(bptree.compare(foundCell.key, searchKey)==0){
+            yield foundCell.key;
+          }
+        }
+      }
+    }
+  }
+
+  static Stream<K> find<K>(BPlusTree<K> bptree, K searchKey,Compare<K>  customCompare) async* {
+    //will find leaf node with the same comparator as tree.
+    BPlusNode<K> found_leaf_node = searchForLeafNode(bptree: bptree,searchKey: searchKey);
+    bool findingMatches = true;
+    while(findingMatches){
+      var avlStr = AVLTreeAlgos.inorderTraversal(startNode: found_leaf_node.node.internalCellTree.root);
+      await for (var avlnode in  avlStr){
+        int searchKeyCurrentNode = customCompare(searchKey,avlnode.key.key);
+        if(searchKeyCurrentNode==0){
+          yield avlnode.key.key;
+        }
+      }
+      found_leaf_node = found_leaf_node.node.rightSibling;
+      if(found_leaf_node==null){
+        findingMatches = false;
+      }
+    }
+  }
+
   ///
   /// It will find the start node and then go for each right sibling cell until the custom comparator returns 0
   static Stream<K> searchAllKeysEqualBasedOnCustomComparator <K>(BPlusTree<K> bptree, K searchKey,Compare<K>  customCompare, {int offset=0, int limit=-1}) async*{
@@ -368,7 +411,7 @@ class BPlusTreeAlgos{
     int count=0;
 
     K nextSearchKey = searchKey;
-    BPlusCell<K> foundCell = searchForKeyGTE(bptree: bptree, searchKey: nextSearchKey, customCompare: (BPlusCell<K> k1, BPlusCell<K> k2){
+    BPlusCell<K> foundCell = searchForKey(bptree: bptree, searchKey: nextSearchKey, customCompare: (BPlusCell<K> k1, BPlusCell<K> k2){
       return customCompare(k1.key, k2.key);
     });
     if(foundCell!=null){
@@ -412,7 +455,7 @@ class BPlusTreeAlgos{
     var bpsearchKey =BPlusCell<K>(key: searchKey);
     BPlusCell<K> foundCell;
     while(bpNode!=null){
-      foundCell = AVLTreeAlgos.searchGTE(searchKey: bpsearchKey, tree: bpNode.node.internalCellTree)?.key;
+      foundCell = AVLTreeAlgos.searchGTE(searchKey: bpsearchKey, tree: bpNode.node.internalCellTree, customCompare: customCompare)?.key;
       if(bpNode.node.isLeaf){
         break;
       }
@@ -457,7 +500,7 @@ class BPlusTreeAlgos{
 
     var bpsearchKey = BPlusCell<K>(key: searchKey);
     while(!bpNode.node.isLeaf){
-      var foundCell = AVLTreeAlgos.searchJustLesserThanOrEqual(searchKey: bpsearchKey, tree: bpNode.node.internalCellTree, customCompare: customCompare);
+      var foundCell = AVLTreeAlgos.search(tree: bpNode.node.internalCellTree, search_type: SearchType.$lte, searchKey: bpsearchKey, customCompare: customCompare);//AVLTreeAlgos.searchJustLesserThanOrEqual(searchKey: bpsearchKey, tree: bpNode.node.internalCellTree, customCompare: customCompare);
       if(foundCell==null){
         bpNode=bpNode.node.leftMostChild;
       }else{

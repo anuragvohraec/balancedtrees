@@ -1,3 +1,10 @@
+## [1.0.0] -18 Jun 2020
+- Added find query algorithm for custom search
+ 
+## [0.0.9] -12 Mar 2020
+
+- Added algorithm for Search for all keys in a given key list.
+
 ## [0.0.8] - 21 Feb 2020
 
 - Added search BPLus tree by a custom comparator functionality.

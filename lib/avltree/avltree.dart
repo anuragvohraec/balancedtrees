@@ -12,6 +12,12 @@ enum Has{NO_CHILD,ONLY_LEFT_CHILD,ONLY_RIGHT_CHILD,BOTH_LEFT_AND_RIGHT_CHILD}
 
 enum BalanceStatus{RIGHT_SUBTREE_IS_BIGGER, AVL_BALANCED, LEFT_SUBTREE_IS_BIGGER}
 
+enum SearchType{
+  $lte,
+  $eq,
+  $gte
+}
+
 ///Node for a AVL tree
 class AVLTreeNode<K>{
   AVLTreeNode<K> parent;
@@ -172,7 +178,7 @@ class AVLTreeAlgos{
   ///provides inorder traversal(: when items required in comparison sorted order
   static Stream<AVLTreeNode<K>> inorderRangeTraversal<K>({K startKey, K endKey, AVLTree<K> tree}) async*{
     await for(var i in inorderTraversal(startNode: tree.root)){
-      if(startKey==null || tree.compare(i.key,startKey)>=0){
+      if(startKey==null || (tree.compare(i.key,startKey)>=0 && (endKey==null || tree.compare(i.key,endKey)<0))){
         yield i;
       }
       if(endKey!=null && tree.compare(i.key,endKey)>=0){
@@ -268,6 +274,47 @@ class AVLTreeAlgos{
     }
   }
 
+  static AVLTreeNode<K> search<K>({
+    AVLTree<K> tree,
+    Compare<K> customCompare,
+    K searchKey,
+    SearchType search_type
+  }){
+    if(searchKey==null || tree==null || tree.root == null){
+      return null;
+    }else{
+      AVLTreeNode<K> eq;
+      AVLTreeNode<K> lte;
+      AVLTreeNode<K> gte;
+
+      AVLTreeNode<K> current_node = tree.root;
+      Compare<K> compare = customCompare??tree.compare;
+      while(current_node!=null){
+        int compare_index = compare(searchKey, current_node.key);
+        if(compare_index ==0){
+          //found results
+          eq = current_node;
+          break;
+        }else if (compare_index > 0) {
+          lte=current_node;
+          //search node is bigger than current node, so we need to go in its right subtree
+          current_node=current_node.right;
+        } else {
+          gte=current_node;
+          //search node is smaller than current node, so we need to go in its left subtree
+          current_node=current_node.left;
+        }
+      }
+
+      switch (search_type) {
+        case SearchType.$lte: return eq!=null?eq:lte;
+        case SearchType.$eq: return eq;
+        case SearchType.$gte: return eq!=null?eq:gte;
+      }
+    }
+  }
+
+
   ///finds a node equals or "just" lesser than the current node,
   ///equality has to be checked once more, after it sends results.
   ///**returns right most element** if search key is bigger than biggest,
@@ -289,13 +336,13 @@ class AVLTreeAlgos{
       t1= null; //not found at all
     }else{
       //compare current key with search key
-      var r = compare(currentNode.key, searchKey);
+      var r = compare(searchKey,currentNode.key);
       //if r<0, currentNode is smaller than searchKey
       //if r>0, then currentNode is greater than searchKey
 
       if(r==0){ //currentKey and searchKey are same
         return currentNode; //exact match
-      }else if(r<0) {
+      }else if(r>0) {
         //current key is lesser than search key
         if(jltNode== null || compare(jltNode.key,currentNode.key)>0){
           jltNode = currentNode;
@@ -321,7 +368,7 @@ class AVLTreeAlgos{
       //if jgtnode is greater than search key, then only return jgtNode
       // [see TESTCASE9 in avtree_test.dart , which was failing due to it]
       //else return null , as there is no just greater than node in the tree
-      return compare(jltNode.key,searchKey)<0?jltNode:null;
+      return compare(searchKey,jltNode.key)>=0?jltNode:null;
     }
     return t1;
   }
@@ -329,8 +376,8 @@ class AVLTreeAlgos{
 
   ///finds a node equals or "just" greater than the current node,
   ///equality has to be checked once more, aftre it sends results
-  static AVLTreeNode<K> searchGTE<K>({K searchKey,AVLTree<K> tree}){
-    var r = _recursive_search(currentNode: tree.root, searchKey: searchKey, compare: tree.compare);
+  static AVLTreeNode<K> searchGTE<K>({K searchKey,AVLTree<K> tree, Compare<K> customCompare}){
+    var r = _recursive_search(currentNode: tree.root, searchKey: searchKey, compare: customCompare??tree.compare);
     return r;
   }
 
@@ -340,10 +387,10 @@ class AVLTreeAlgos{
         return Assertively.IS_NULL;
       }
 
-      int r = compare(nodeKey,searchKey);
+      int r = compare(searchKey,nodeKey);
       if(r==0){
         return Assertively.EQUALS_TO;
-      }else if(r<0){
+      }else if(r>0){
         return Assertively.LESSER_THAN;
       }else{
         return Assertively.GREATER_THAN;
@@ -418,7 +465,7 @@ class AVLTreeAlgos{
 
   ///inserts a new node, returns the refernce to the new Node inserted
   static AVLTreeNode<K> insert<K>({K newKey,AVLTree<K> tree, bool replaceDuplicate=false}){
-    AVLTreeNode<K> t1=insertWithoutBalance(newKey: newKey, tree: tree);
+    AVLTreeNode<K> t1=insertWithoutBalance(newKey: newKey, tree: tree, replaceDuplicate: replaceDuplicate);
     checkAndBalanceTree(t1, tree);
     return t1;
   }
@@ -527,7 +574,7 @@ class AVLTreeAlgos{
           checkAndBalanceTree(node_which_replaced_deleted_node, tree);
         }
       }
-      return AVLTreeNode(key: keyToBeDeleted);
+      return AVLTreeNode(key: found.key);
     }
 
     return null;
@@ -843,7 +890,7 @@ class AVLTreeAlgos{
       return Is.ROOT;
     }
     var r = compare(node.parent.key,node.key);
-    if(r>=0){
+    if(r>0){
       return Is.LEFT_CHILD;
     }else{
       return Is.RIGHT_CHILD;
